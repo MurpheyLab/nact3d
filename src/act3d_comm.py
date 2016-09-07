@@ -9,7 +9,7 @@ and updates a biasforce based on the topic, cursor_bias.
 
 SUBSCRIBERS:
     - cursor_bias (float32[])
-    - sys_dyn (trep_act3d/trepsys_dyn)
+    - cursor_dyn (cursor_dyn)
 
 PUBLISHERS:
     - cursor_state (nact3d/cursor)
@@ -38,8 +38,10 @@ class ACT3D_Communicator:
         return
         
     def timercb(self, data):
-        [self.cursor.sys_time,self.cursor.pos,self.cursor.vel,self.cursor.acc,self.cursor.force] = get_cursor_state()
-        
+        [self.cursor.sys_time,self.cursor.pos,self.cursor.vel,self.cursor.acc,self.cursor.force]\
+            = get_cursor_state()
+        self.cursor_pub.publish(self.cursor)
+                  
         return
 
 

@@ -4,6 +4,8 @@ import time
 import act3d
 import numpy as np
 
+DT = 1./100.
+
 #####PORTS######
 UDP_S_IP = "192.168.5.100"
 UDP_S_PORT = 12346
