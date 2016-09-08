@@ -27,17 +27,18 @@ class ACT3D_Communicator:
              
         # setup publishers, subscribers, timers:
         self.bias_sub = rospy.Subscriber("cursor_bias", float32[], self.set_bias)
-        self.dyn_sub = rospy.Subscriber("cursor_dyn",act3d_dyn,act3d.set_dyn)
+        self.dyn_sub = rospy.Subscriber("cursor_dyn",act3d_dyn,self.set_dyn)
         self.sim_timer = rospy.Timer(rospy.Duration(DT), self.timercb)
         self.cursor_pub = rospy.Publisher("cursor_state",cursor,queue_size=5)
         
-        act3d.startup()
-        act3d.set_dyn()
         self.cursor_state = cursor()
+        self.dyn_set = False
 
         return
         
-    def timercb(self, data):
+    def timercb(self):
+        if not self.dyn_set:
+            return
         [self.cursor.sys_time,self.cursor.pos,self.cursor.vel,self.cursor.acc,self.cursor.force]\
             = get_cursor_state()
         self.cursor_pub.publish(self.cursor)
@@ -48,6 +49,17 @@ class ACT3D_Communicator:
     def set_bias(self,data):
         msg = "set bf1 force +"str(data)+";"
         sock_send.sendto(msg, (UDP_S_IP,UDP_S_PORT))
+        return
+        
+    def set_dyn(self,data):
+        msg = "set sp1 stiffness "+str(data.sp)+";set sp1 position"+str(HOME)+";set sp1 enabled 1;"+\
+            "set ds dampcoeff "+str(data.ds)+";set ds enabled 1;"
+        sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
+        msg = "create biasforce bf1;set bf1 force [0,0,0];set cursor inertia "+str(data.inertia)+";create damper d1;"+\
+            "set d1 dampcoeff "+str(data.damp)+";set bf1 maxforce "+str(MAX_F)+";set bf1 enabled 1;set d1 enabled 1;"
+        sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
+        self.dyn_set = True
+        return
         
 def main():
     """
@@ -57,6 +69,7 @@ def main():
     rospy.init_node('act3d_udp', log_level=rospy.INFO)
 
     try:
+        act3d.startup()
         comm = ACT3D_Communicator()
     except rospy.ROSInterruptException: pass
 

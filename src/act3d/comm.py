@@ -7,9 +7,9 @@ def startup():
     setup="set all enabled 0;remove all;set system arm left;set cursor resetforcesensor 1;"
     sock_send.sendto(setup,(UDP_S_IP,UDP_S_PORT))
     
-    startup="set cursor resetforcesensor 0;set cursor inertia "+str(INERTIA_INIT)+";set cursor respondtoforce false;\
-        set cursor maxvelocity 0.1;create spring sp1;set sp1 stiffness "+str(K_INIT)+";set sp1 position "+str(homepos)+";\
-        set sp1 enabled 1;create damper ds;set ds dampcoeff "+str(DAMP_INIT)+";set ds enabled 1;"
+    startup="set cursor resetforcesensor 0;set cursor inertia "+str(INERTIA_INIT)+";set cursor respondtoforce false;"+\
+        "set cursor maxvelocity 0.1;create spring sp1;set sp1 stiffness "+str(K_INIT)+";set sp1 position "+str(homepos)+";"+\
+        "set sp1 enabled 1;create damper ds;set ds dampcoeff "+str(DAMP_INIT)+";set ds enabled 1;"
     sock_send.sendto(startup,(UDP_S_IP,UDP_S_PORT))
     
     #Set robot into centering position.
@@ -32,18 +32,8 @@ def startup():
 
     msg = "set cursor maxvelocity "+str(MAX_VEL)+";set cursor respondtoforce true;"
     sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
-    msg = "set sp1 stiffness "+str(K_DEFAULT)+";set sp1 position"+str(homepos)+";set sp1 enabled 1;\
-        set ds dampcoeff "+str(DAMP_DEFAULT)+";set ds enabled 1;"
-    sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
+    
 
-default_dyn = trepsys_dyn()
-default_dyn.inertia = [60,60,60]
-default_dyn.damp = DAMP_DEFAULT
-#####set dynamics####
-def set_dyn(sys_dyn=default_dyn):
-    msg = "create biasforce bf1;set bf1 force [0,0,0];set cursor inertia "+str(sys_dyn.inertia)+";create damper d1;\
-        set d1 dampcoeff "+str(sys_dyn.damp)+";set bf1 maxforce "+str(MAX_F)+";set bf1 enabled 1;set d1 enabled 1;"
-    sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
 
 ########Communication timer######
 def get_cursor_state():

@@ -29,3 +29,15 @@ DAMP_DEFAULT = [100,0,100]
 MAX_VEL = 6
 MAX_F = 100
 
+###################
+####ROS Imports####
+###################
+import rospy
+from nact3d.msg import cursor
+from nact3d.msg import cursor_dyn
+
+DEFAULT_DYN = cursor_dyn()
+DEFAULT_DYN.inertia = [5.0,5.0,5.0]
+DEFAULT_DYN.damp = [0.1,0.1,0.1]
+DEFAULT_DYN.sp = K_DEFAULT
+DEFAULT_DYN.ds = DAMP_DEFAULT
