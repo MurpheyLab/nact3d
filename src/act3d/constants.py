@@ -13,7 +13,7 @@ UDP_R_IP = "192.168.5.99"
 UDP_R_PORT = 12348
 BUFF = 2048
 
-sock_end = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+sock_send = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 sock_rcv = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 
 ##############
@@ -35,6 +35,7 @@ MAX_F = 100
 import rospy
 from nact3d.msg import cursor
 from nact3d.msg import cursor_dyn
+from nact3d.msg import Floats
 
 DEFAULT_DYN = cursor_dyn()
 DEFAULT_DYN.inertia = [5.0,5.0,5.0]

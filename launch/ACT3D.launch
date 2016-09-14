@@ -1,11 +1,11 @@
 <launch>
 
   <!-- startup simulator node -->
-  <node pkg="nact3d" type="act3d_comm.py" name="CommPort"
+  <node pkg="nact3d" type="act3d_udp.py" name="CommPort"
 	respawn="true" output="screen" />
 
   <!-- nact3d node publishes cursor states and sends commands to act3d computer -->
-  <!--node name="act3d_udp" pkg="nact3d" type="act3d_comm.py" output="screen" /-->
+  <!--node name="act3d_udp" pkg="nact3d" type="act3d_udp.py" output="screen" /-->
   
 </launch>
 

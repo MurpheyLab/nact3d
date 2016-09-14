@@ -10,6 +10,7 @@ and updates a biasforce based on the topic, cursor_bias.
 SUBSCRIBERS:
     - cursor_bias (float32[])
     - cursor_dyn (cursor_dyn)
+    - genmsg_sub(string)
 
 PUBLISHERS:
     - cursor_state (nact3d/cursor)
@@ -17,6 +18,11 @@ PUBLISHERS:
 SERVICES:
 
 """
+import rospy
+
+#from nact3d.msg import Floats
+#from nact3d.msg import cursor
+#from nact3d.msg import cursor_dyn
 import act3d
 from act3d.constants import *
     
@@ -26,8 +32,9 @@ class ACT3D_Communicator:
         rospy.loginfo("Initializing ACT3D robot")
              
         # setup publishers, subscribers, timers:
-        self.bias_sub = rospy.Subscriber("cursor_bias", float32[], self.set_bias)
+        self.bias_sub = rospy.Subscriber("cursor_bias", Floats, self.set_bias)
         self.dyn_sub = rospy.Subscriber("cursor_dyn",act3d_dyn,self.set_dyn)
+        self.genmsg_sub = rospy.Subscriber("gen_msg",string,self.send_msg)
         self.sim_timer = rospy.Timer(rospy.Duration(DT), self.timercb)
         self.cursor_pub = rospy.Publisher("cursor_state",cursor,queue_size=5)
         
@@ -47,7 +54,7 @@ class ACT3D_Communicator:
 
 
     def set_bias(self,data):
-        msg = "set bf1 force +"str(data)+";"
+        msg = "set bf1 force "+str(data)+";"
         sock_send.sendto(msg, (UDP_S_IP,UDP_S_PORT))
         return
         
@@ -60,6 +67,10 @@ class ACT3D_Communicator:
         sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
         self.dyn_set = True
         return
+    
+    def send_msg(self,data):
+        sock_send.sendto(data,(UDP_S_IP,UDP_S_PORT))
+        return
         
 def main():
     """
@@ -70,7 +81,7 @@ def main():
 
     try:
         act3d.startup()
-        comm = ACT3D_Communicator()
+        #comm = ACT3D_Communicator()
     except rospy.ROSInterruptException: pass
 
     rospy.spin()
