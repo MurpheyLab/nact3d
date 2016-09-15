@@ -15,12 +15,13 @@ BUFF = 2048
 
 sock_send = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
 sock_rcv = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+sock_rcv.settimeout(5.0)
 
 ##############
 ####ACT3D ####
 ##############
 HOME = [0.55,0.,0.]
-INERTIA_INIT = [10,10,10]
+INERTIA_INIT = [10.0,10.0,10.0]
 DAMP_INIT = [20,20,20]
 K_INIT = [30,30,30]
 K_DEFAULT = [1000,0,1000]
@@ -28,6 +29,7 @@ DAMP_DEFAULT = [100,0,100]
 
 MAX_VEL = 6
 MAX_F = 100
+DELIM = ","
 
 ###################
 ####ROS Imports####
@@ -36,9 +38,16 @@ import rospy
 from nact3d.msg import cursor
 from nact3d.msg import cursor_dyn
 from nact3d.msg import Floats
+from std_msgs.msg import String
 
 DEFAULT_DYN = cursor_dyn()
 DEFAULT_DYN.inertia = [5.0,5.0,5.0]
 DEFAULT_DYN.damp = [0.1,0.1,0.1]
 DEFAULT_DYN.sp = K_DEFAULT
 DEFAULT_DYN.ds = DAMP_DEFAULT
+
+###############################
+####ACT3D standard Commands####
+###############################
+ON = "set system statecmd cmd_on;"
+IDLE = "set system statecmd cmd_idle;"

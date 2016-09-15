@@ -25,6 +25,30 @@ def parser(string):
             str2=str2[j+1:]
     return msglist
             
+def single_gen(str1):
+    str1=str1[str1.find('[')+1:str1.find(']')]
+    j=10
+    arr=[]
+    while j>0:
+        j=str1.find(',')
+        if j >0:
+            arr.append(str1[:j])
+            str1=str1[j+1:]
+        else:
+            arr.append(str1)
+    return arr
+
+def gen_msg(string):
+    msglist = [int(string[string.find('{')+1:string.find('}')])]
+    
+    str2 = string[string.find('}')+1:]
+    j=1
+    while j>0:
+        j=str2.find(';')
+        if j>0:
+            msglist.append(single_gen(str2[:j]))
+            str2=str2[j+1:]
+    return msglist
 
     
 

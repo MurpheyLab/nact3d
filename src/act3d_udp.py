@@ -33,17 +33,18 @@ class ACT3D_Communicator:
              
         # setup publishers, subscribers, timers:
         self.bias_sub = rospy.Subscriber("cursor_bias", Floats, self.set_bias)
-        self.dyn_sub = rospy.Subscriber("cursor_dyn",act3d_dyn,self.set_dyn)
-        self.genmsg_sub = rospy.Subscriber("gen_msg",string,self.send_msg)
+        self.dyn_sub = rospy.Subscriber("cursor_dyn",cursor_dyn,self.set_dyn)
+        self.genmsg_sub = rospy.Subscriber("gen_msg",String,self.send_msg)
         self.sim_timer = rospy.Timer(rospy.Duration(DT), self.timercb)
         self.cursor_pub = rospy.Publisher("cursor_state",cursor,queue_size=5)
         
         self.cursor_state = cursor()
         self.dyn_set = False
+        act3d.startup()
 
         return
         
-    def timercb(self):
+    def timercb(self,data):
         if not self.dyn_set:
             return
         [self.cursor.sys_time,self.cursor.pos,self.cursor.vel,self.cursor.acc,self.cursor.force]\
@@ -59,17 +60,19 @@ class ACT3D_Communicator:
         return
         
     def set_dyn(self,data):
-        msg = "set sp1 stiffness "+str(data.sp)+";set sp1 position"+str(HOME)+";set sp1 enabled 1;"+\
-            "set ds dampcoeff "+str(data.ds)+";set ds enabled 1;"
-        sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
-        msg = "create biasforce bf1;set bf1 force [0,0,0];set cursor inertia "+str(data.inertia)+";create damper d1;"+\
-            "set d1 dampcoeff "+str(data.damp)+";set bf1 maxforce "+str(MAX_F)+";set bf1 enabled 1;set d1 enabled 1;"
-        sock_send.sendto(msg,(UDP_S_IP,UDP_S_PORT))
+        msg = "set sp1 stiffness ["+DELIM.join(map(str,data.sp))+"];set sp1 position["+DELIM.join(map(str,HOME))+"];"+\
+            "set sp1 enabled 1;set ds dampcoeff ["+DELIM.join(map(str,data.ds))+"];set ds enabled 1;"
+        response = act3d.send_msg(msg)
+        msg = "create biasforce bf1;set bf1 force [0,0,0];set cursor inertia ["+DELIM.join(map(str,data.inertia))+"];"+\
+            "create damper d1;set d1 dampcoeff ["+DELIM.join(map(str,data.damp))+"];"+\
+            "set bf1 maxforce ["+DELIM.join(map(str,MAX_F))+"];set bf1 enabled 1;set d1 enabled 1;"
+        response = act3d.send_msg(msg)
+        response = act3d.send_msg(ON)
         self.dyn_set = True
         return
     
     def send_msg(self,data):
-        sock_send.sendto(data,(UDP_S_IP,UDP_S_PORT))
+        response=act3d.send_msg(data)
         return
         
 def main():
@@ -78,10 +81,11 @@ def main():
     calling ros.spin
     """
     rospy.init_node('act3d_udp', log_level=rospy.INFO)
+    
+    rospy.on_shutdown(act3d.shutdown)
 
     try:
-        act3d.startup()
-        #comm = ACT3D_Communicator()
+        comm = ACT3D_Communicator()
     except rospy.ROSInterruptException: pass
 
     rospy.spin()
