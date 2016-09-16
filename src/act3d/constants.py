@@ -37,8 +37,9 @@ DELIM = ","
 import rospy
 from nact3d.msg import cursor
 from nact3d.msg import cursor_dyn
-from nact3d.msg import Floats
+from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import String
+from std_msgs.msg import Bool
 
 DEFAULT_DYN = cursor_dyn()
 DEFAULT_DYN.inertia = [5.0,5.0,5.0]
