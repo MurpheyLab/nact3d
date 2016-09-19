@@ -1,29 +1,32 @@
 from act3d.constants import *
 
-UDPinUSE = False
+class UDP_sender:
+    def __init__(self):
+        self.UDPinUSE = False
 
-def send_msg(str):
-    global UDPinUSE
-    while UDPinUSE==True:
-        pass ###wait
-    UDPinUSE = True
-    sock_send.sendto(str,(UDP_S_IP,UDP_S_PORT))
-    try:
-        data,addr = sock_rcv.recvfrom(BUFF)
-    except socket.error as err:
-        rospy.logerr("Error message received:%s", err)
-        data = err
-    return data
-    #UDPinUSE = False
+    def send_msg(self,str):
+        while self.UDPinUSE==True:
+            pass ###wait
+        self.UDPinUSE = True
+        sock_send.sendto(str,(UDP_S_IP,UDP_S_PORT))
+        try:
+            data,addr = sock_rcv.recvfrom(BUFF)
+        except socket.error as err:
+            rospy.logerr("Error message received:%s", err)
+            data = err
+        return data, self.reset()
     
+    def reset(self):
+        self.UDPinUSE = False
+        return
+
+fedex = UDP_sender()
 
 ###init####
 def startup():
-    global UDPinUSE 
     sock_rcv.bind((UDP_R_IP,UDP_R_PORT))
-
     syscheck = "get system arm;"
-    response = send_msg(syscheck); UDPinUSE = False
+    response,_ = fedex.send_msg(syscheck)
     reply = act3d.gen_msg(response)
     if reply[1][0]=='left':
         setup="set all enabled 0;remove all;set cursor resetforcesensor false;set cursor respondtoforce true;"+\
@@ -31,8 +34,8 @@ def startup():
     else:
         setup="set all enabled 0;remove all;set cursor resetforcesensor false;set system arm left;"+\
             "set cursor inertia [10,10,10];set cursor maxvelocity 0.2;"
-    data = send_msg(setup); UDPinUSE = False
-    data=send_msg(IDLE); UDPinUSE = False
+    data,_ = fedex.send_msg(setup)
+    data,_=fedex.send_msg(IDLE)
     
     active = False
     print "Use the ACT3D to define a safe workspace. When you have done so, switch out of teaching mode."
@@ -48,19 +51,19 @@ def startup():
         "set sp1 position ["+DELIM.join(map(str,HOME))+"];set sp1 enabled 1;create damper ds;set ds dampcoeff ["+\
         DELIM.join(map(str,DAMP_INIT))+"];set ds enabled 1;"
 
-    data = send_msg(startup); UDPinUSE = False
+    data,_ = fedex.send_msg(startup)
     #Set robot into centering position.
     print "Go to Home position."
     time.sleep(2.0)
-    data=send_msg(ON); UDPinUSE = False
+    data,_=fedex.send_msg(ON)
     homing = True
     msg = "get cursor modelpos;get cursor modelvel;"
-    data = send_msg(ON); UDPinUSE = False
+    data,_ = fedex.send_msg(ON)
     while homing == True:
-        data=send_msg(msg); UDPinUSE = False
+        data,_=fedex.send_msg(msg)
         reply = act3d.parser(data)   
         if np.linalg.norm(np.array(reply[1])-np.array(HOME))<0.001 and np.linalg.norm(reply[2])<0.01:
-            data=send_msg(IDLE); UDPinUSE = False
+            data,_=fedex.send_msg(IDLE)
             homing = False
         time.sleep(0.1)
     print "SAFE!"
@@ -71,9 +74,8 @@ def startup():
 
 ########Communication timer######
 def get_cursor_state():
-    global UDPinUSE
     msg = "get cursor modelpos;get cursor modelvel;get cursor modelacc;get cursor measforce;"
-    stateinfo=send_msg(msg); UDPinUSE = False
+    stateinfo,_=fedex.send_msg(msg)
     reply = act3d.parser(stateinfo)#format should be [timestamp,[pos],[vel],[acc],[force]]
     sys_time=reply[0]
     pos = reply[1]
@@ -84,11 +86,9 @@ def get_cursor_state():
 
 ####shutdown procedure####
 def shutdown():
-    global UDPinUSE
-    UDPinUSE=False
-    response = send_msg(IDLE); UDPinUSE = False
+    response,_ = fedex.send_msg(IDLE)
     offmsg = "set all enabled false;set cursor respondtoforce false;set cursor inertia ["+DELIM.join(map(str,INERTIA_INIT))+"];"+\
         "set cursor maxvelocity 0.2;"
-    response = send_msg(offmsg); UDPinUSE = False
+    response,_ = fedex.send_msg(offmsg)
     print "NACT3D resetting before shutdown"
 

@@ -46,7 +46,7 @@ class ACT3D_Communicator:
         self.bias_sub = rospy.Subscriber("cursor_bias", Float32MultiArray, self.set_bias)
         return
     
-    def shutdowm_standardComm()
+    def shutdowm_standardComm():
         self.update_timer.shutdown()
         self.bias_sub.unregister()
         return
@@ -60,10 +60,8 @@ class ACT3D_Communicator:
     
 
     def set_bias(self,data):
-        print "got it"
-        global UDPinUSE
         msg = "set bf1 force "+str(data)+";"
-        response = act3d.send_msg(msg); UDPinUSE = False
+        response,_ = act3d.fedex.send_msg(msg)
         return
         
     def set_dyn(self,data):
@@ -74,17 +72,14 @@ class ACT3D_Communicator:
         msg2 = "create biasforce bf1;set bf1 force [0.0,0.0,0.0];set cursor inertia ["+DELIM.join(map(str,data.inertia))+"];"+\
             "create damper d1;set d1 dampcoeff ["+DELIM.join(map(str,data.damp))+"];"+\
             "set bf1 maxforce ["+str(MAX_F)+"];set bf1 enabled 1;set d1 enabled 1;set cursor maxvelocity ["+str(data.maxvel)+"];"
-        global UDPinUSE
-        response = act3d.send_msg(msg+msg2); UDPinUSE = False
-        print response
-        global UDPinUSE
-        response = act3d.send_msg(act3d.ON+"set cursor respondtoforce true;"); UDPinUSE = False
+        response,_ = act3d.fedex.send_msg(msg+msg2)
+        response,_ = act3d.fedex.send_msg(act3d.ON+"set cursor respondtoforce true;")
         self.init_standardComm()
         self.startup_pub.publish(True)
         return
 """    
     def send_msg(self,data):
-        response=act3d.send_msg(data); UDPinUSE = False
+        response,_=act3d.fedex.send_msg(data)
         return
 """        
 def main():
