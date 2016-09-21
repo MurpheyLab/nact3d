@@ -20,7 +20,7 @@ sock_rcv.settimeout(5.0)
 ##############
 ####ACT3D ####
 ##############
-HOME = [0.55,0.,0.]
+HOME = [0.55,0.0,0.0]
 INERTIA_INIT = [10.0,10.0,10.0]
 DAMP_INIT = [20,20,20]
 K_INIT = [30,30,30]
@@ -52,3 +52,5 @@ DEFAULT_DYN.ds = DAMP_DEFAULT
 ###############################
 ON = "set system statecmd cmd_on;"
 IDLE = "set system statecmd cmd_idle;"
+MOVE = "set cursor respondtoforce true;"
+PAUSE = "set cursor respondtoforce false;"
