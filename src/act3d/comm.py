@@ -27,12 +27,12 @@ def startup():
     sock_rcv.bind((UDP_R_IP,UDP_R_PORT))
     syscheck = "get system arm;"
     response,_ = fedex.send_msg(syscheck)
-    reply = act3d.gen_msg(response)
+    reply = act3d.parser(response)
     if reply[1][0]=='left':
         setup="set all enabled 0;remove all;set cursor resetforcesensor false;set cursor respondtoforce true;"+\
             "set cursor inertia [10,10,10];set cursor maxvelocity 0.2;"
     else:
-        setup="set all enabled 0;remove all;set cursor resetforcesensor false;set system arm left;"+\
+        setup="set all enabled 0;remove all;set cursor resetforcesensor false;set system arm left;set cursor respondtoforce true;"+\
             "set cursor inertia [10,10,10];set cursor maxvelocity 0.2;"
     data,_ = fedex.send_msg(setup)
     data,_=fedex.send_msg(IDLE)
@@ -40,6 +40,7 @@ def startup():
     active = False
     print "Use the ACT3D to define a safe workspace. When you have done so, switch out of teaching mode."
     while active == False:
+        #print fedex.send_msg("get system state;get system statecmd;get cursor respondtoforce;")
         switch = raw_input("Have you switched to active mode?[y/n]")
         if switch == 'y' or switch == "Y" or switch == "yes" or switch == "Yes":
             active = True

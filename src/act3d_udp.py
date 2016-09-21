@@ -32,6 +32,7 @@ class ACT3D_Communicator:
         self.startup_pub = rospy.Publisher("act3d_ready",Bool,queue_size =1)
         
         self.cursor_state = cursor()
+        self.bf1 = [0,0,0]
         act3d.startup()##don't start timer until after setup is complete
         self.init_standardComm()
         [self.cursor_state.sys_time,self.cursor_state.pos,self.cursor_state.vel,self.cursor_state.acc,self.cursor_state.force]\
@@ -56,14 +57,16 @@ class ACT3D_Communicator:
         [self.cursor_state.sys_time,self.cursor_state.pos,self.cursor_state.vel,self.cursor_state.acc,self.cursor_state.force]\
             = act3d.get_cursor_state()
         self.cursor_pub.publish(self.cursor_state)
+        msg = "set bf1 force ["+DELIM.join(map(str,self.bf1))+"];get bf1 force;"
+        response,_ = act3d.fedex.send_msg(msg)
                          
         return
     
 
     def set_bias(self,data):
-        msg = "set bf1 force ["+DELIM.join(map(str,data.data))+"];get bf1 force;"
-        response,_ = act3d.fedex.send_msg(msg)
-        #print response
+        #msg = "set bf1 force ["+DELIM.join(map(str,data.data))+"];get bf1 force;"
+        #response,_ = act3d.fedex.send_msg(msg)
+        self.bf1 = data.data
         return
         
     def set_dyn(self,data):
