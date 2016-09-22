@@ -20,7 +20,7 @@ sock_rcv.settimeout(5.0)
 ##############
 ####ACT3D ####
 ##############
-HOME = [0.55,0.0,0.0]
+HOME = [0.55,0.1,0.0]
 INERTIA_INIT = [10.0,10.0,10.0]
 DAMP_INIT = [20,20,20]
 K_INIT = [30,30,30]
@@ -40,6 +40,7 @@ from nact3d.msg import cursor_dyn
 from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import String
 from std_msgs.msg import Bool
+from std_msgs.msg import Float32
 
 DEFAULT_DYN = cursor_dyn()
 DEFAULT_DYN.inertia = [5.0,5.0,5.0]
