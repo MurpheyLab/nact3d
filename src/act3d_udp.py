@@ -34,6 +34,7 @@ class ACT3D_Communicator:
         self.cursor_state = cursor()
         self.bf1 = [0,0,0]
         self.accept_flag = True
+        self.maxvel = 0.2
         act3d.startup()##don't start timer until after setup is complete
         self.init_standardComm()
         [self.cursor_state.sys_time,self.cursor_state.pos,self.cursor_state.vel,self.cursor_state.acc,self.cursor_state.force]\
@@ -47,19 +48,22 @@ class ACT3D_Communicator:
         self.bias_sub = rospy.Subscriber("cursor_bias", Float32MultiArray, self.set_bias)
         self.genmsg_sub = rospy.Subscriber("gen_msg",String,self.send_msg)
         self.accept_sub = rospy.Subscriber("acceptance",Bool,self.set_accept)
+        self.vel_sub = rospy.Subscriber("max_velocity",Float32,self.set_vel)
         return
     
     def shutdowm_standardComm(self):
         self.update_timer.shutdown()
         self.bias_sub.unregister()
         self.genmsg_sub.unregister()
+        self.vel_sub.unregister()
         return
     
     def timercb(self,data):
         [self.cursor_state.sys_time,self.cursor_state.pos,self.cursor_state.vel,self.cursor_state.acc,self.cursor_state.force]\
             = act3d.get_cursor_state()
         self.cursor_pub.publish(self.cursor_state)
-        msg = "set bf1 force ["+DELIM.join(map(str,self.bf1))+"];get bf1 force;set cursor respondtoforce "+str(self.accept_flag)+";"
+        msg = "set bf1 force ["+DELIM.join(map(str,self.bf1))+"];get bf1 force;set cursor respondtoforce "\
+            +str(self.accept_flag)+";set cursor maxvelocity "+str(self.maxvel)+";"
         response,_ = act3d.fedex.send_msg(msg)
                          
         return
@@ -71,6 +75,9 @@ class ACT3D_Communicator:
         return
     def set_accept(self,data):
         self.accept_flag = data.data
+        return
+    def set_vel(self,data):
+        self.max_vel = abs(data.data)
         return
         
     def set_dyn(self,data):
@@ -85,6 +92,7 @@ class ACT3D_Communicator:
         response,_ = act3d.fedex.send_msg(msg+msg2)
         response,_ = act3d.fedex.send_msg(ON+MOVE)
         rospy.loginfo("ACT3D on")
+        self.max_vel = data.maxvel
         self.init_standardComm()
         self.startup_pub.publish(True)
         return
