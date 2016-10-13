@@ -65,7 +65,7 @@ class ACT3D_Communicator:
         msg = "set bf1 force ["+DELIM.join(map(str,self.bf1))+"];get bf1 force;set cursor respondtoforce "\
             +str(self.accept_flag)+";set cursor maxvelocity "+str(self.maxvel)+";"
         response,_ = act3d.fedex.send_msg(msg)
-                         
+                                 
         return
     
 
@@ -92,7 +92,7 @@ class ACT3D_Communicator:
         response,_ = act3d.fedex.send_msg(msg+msg2)
         response,_ = act3d.fedex.send_msg(ON+MOVE)
         rospy.loginfo("ACT3D on")
-        self.max_vel = data.maxvel
+        self.maxvel = data.maxvel
         self.init_standardComm()
         self.startup_pub.publish(True)
         return

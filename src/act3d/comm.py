@@ -67,8 +67,12 @@ def startup():
             data,_=fedex.send_msg(IDLE)
             homing = False
         time.sleep(0.1)
-    print "SAFE!"
-    time.sleep(1.5)
+    print "SAFE! Please, hold still while the force sensor is zeroed."
+    data,_=fedex.send_msg("set cursor resetforcesensor true;")
+    time.sleep(3.0)
+    data,_=fedex.send_msg("set cursor resetforcesensor false;")
+    print "Force sensor zeroed."
+    time.sleep(1.0)
     return
     
 

@@ -1,33 +1,15 @@
 
 import act3d
 from act3d.constants import *
-
+"""
 act3d.startup()
 reply = act3d.get_cursor_state()
-
 """
-  
-DELIM = ","
-def single_gen(str1):
-    if str1[str1.find("}")+1] == "[": 
-        try:
-            arr = [float(x) for x in str1[str1.find("}")+2:-1].split(DELIM,10)]
-        except:
-            arr = str1[str1.find("}")+2:-1]
-    else : return str1[str1.find("}")+1:]
-    return arr
+sock_rcv.bind((UDP_R_IP,UDP_R_PORT))
 
-def parser(string):
-    msglist = [int(string[string.find('{')+1:string.find('}')])]
-    str2 = string[string.find('}')+1:]
-    str3 = [single_gen(x) for x in str2.split(";",30)[:-1]]
-    msglist = msglist+str3
-    return msglist
-
-test="{3150538}[0.542323,-0.0105815,-0.0001724];{3150538}[0,0,0];{5678}Attribute set;Attribute set;{101213}[cmd_on];"
-
-
-test2 = parser(test)
-print test2
-
-"""
+sock_rcv.listen(4) 
+client_socket, client_address = sock_rcv.accept()
+print(client_address, "has connected")
+while 1==1:
+    recvieved_data = s.recv(1024)
+    print(recvieved_data)
