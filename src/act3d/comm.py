@@ -96,4 +96,8 @@ def shutdown():
         "set cursor maxvelocity 0.2;"
     response,_ = fedex.send_msg(offmsg)
     print "NACT3D resetting before shutdown"
+    sock_rcv.shutdown(socket.SHUT_RDWR)
+    sock_rcv.close()
+    sock_send.shutdown(socket.SHUT_RDWR)
+    sock_send.close()
 
