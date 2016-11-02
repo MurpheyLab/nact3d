@@ -79,7 +79,7 @@ def startup():
 
 ########Communication timer######
 def get_cursor_state():
-    msg = "get cursor modelpos;get cursor modelvel;get cursor modelacc;get cursor measforce;"
+    msg = "get cursor modelpos;get cursor modelvel;get cursor modelacc;get cursor measforce;get cursor measjointangles;"
     stateinfo,_=fedex.send_msg(msg)
     reply = act3d.parser(stateinfo)#format should be [timestamp,[pos],[vel],[acc],[force]]
     sys_time=reply[0]
@@ -87,7 +87,8 @@ def get_cursor_state():
     vel = reply[2]
     acc = reply[3]
     force = reply[4]
-    return [sys_time,pos,vel,acc,force]
+    angle = reply[5]
+    return [sys_time,pos,vel,acc,force,angle]
 
 ####shutdown procedure####
 def shutdown():
@@ -96,8 +97,8 @@ def shutdown():
         "set cursor maxvelocity 0.2;"
     response,_ = fedex.send_msg(offmsg)
     print "NACT3D resetting before shutdown"
-    sock_rcv.shutdown(socket.SHUT_RDWR)
+    #sock_rcv.shutdown(socket.SHUT_RD)
     sock_rcv.close()
-    sock_send.shutdown(socket.SHUT_RDWR)
+    #sock_send.shutdown(socket.SHUT_RDWR)
     sock_send.close()
 

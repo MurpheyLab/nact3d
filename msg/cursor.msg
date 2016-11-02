@@ -4,3 +4,4 @@ float32[] pos
 float32[] vel
 float32[] acc
 float32[] force
+float32[] jointangle
